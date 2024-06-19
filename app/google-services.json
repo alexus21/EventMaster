@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "421079495382",
+    "firebase_url": "https://eventmaster-db2d0-default-rtdb.firebaseio.com",
+    "project_id": "eventmaster-db2d0",
+    "storage_bucket": "eventmaster-db2d0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:421079495382:android:46bc136e0ca7d12ba34f77",
+        "android_client_info": {
+          "package_name": "ues.pdm24.eventmaster"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIU9viK8u00W_-lXYNv_Rd9GRGO8HNj38"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -19,9 +20,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.Firebase;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import ues.pdm24.eventmaster.R;
+import ues.pdm24.eventmaster.firebasedatacollection.FirebaseDataCollection;
+import ues.pdm24.eventmaster.user.User;
+import ues.pdm24.eventmaster.validations.EncryptPassword;
+import ues.pdm24.eventmaster.validations.NetworkChecker;
+import ues.pdm24.eventmaster.validations.UserValidator;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -52,6 +59,58 @@ public class SignupActivity extends AppCompatActivity {
         lbl_register_aActivityLogin = findViewById(R.id.lbl_register_aActivityLogin);
 
         createSpannableString(lbl_register_aActivityLogin);
+
+        btnSignUp.setOnClickListener(v -> {
+            String name = txtNameRegistered.getText().toString().trim();
+            String email = txtCorreoRegister.getText().toString().trim();
+            String password = txtPasswordRegister.getText().toString().trim();
+            String retypePassword = txtRetypePasswordRegister.getText().toString().trim();
+
+            if(NetworkChecker.checkInternetConnection(this)) {
+                mostrarMensaje("No hay conexión a internet");
+                return;
+            }
+
+            boolean isValid = UserValidator.validateLogin(email, password, retypePassword,
+                    txtCorreoRegister, txtPasswordRegister, txtRetypePasswordRegister);
+
+            if (!isValid) {
+                return;
+            }
+
+            // Deshabilitar el botón para evitar múltiples solicitudes
+            btnSignUp.setEnabled(false);
+
+            FirebaseDataCollection.checkEmail(email, exists -> {
+                if (exists) {
+                    txtCorreoRegister.setError("Este correo ya está en uso. Prueba uno diferente.");
+                    btnSignUp.setEnabled(true); // Habilitar el botón si el correo ya está registrado
+                } else {
+                    registerUser(name, email, password);
+                    Intent listaDestinos = new Intent(SignupActivity.this, HomeActivity.class);
+                    startActivity(listaDestinos);
+                }
+            });
+        });
+    }
+
+    void registerUser(String name, String email, String password) {
+        reference = FirebaseDatabase.getInstance().getReference();
+
+        String id = reference.push().getKey();
+
+        password = EncryptPassword.encryptPassword(password);
+
+        User user = new User(id, name, email, password);
+
+        // Insertar a Firebase:
+        reference.child("users").push().setValue(user)
+                .addOnSuccessListener(aVoid -> {
+                    mostrarMensaje("Usuario registrado correctamente");
+                })
+                .addOnFailureListener(e -> {
+                    mostrarMensaje("Error al registrar usuario");
+                });
     }
 
     void createSpannableString(TextView item) {
@@ -72,5 +131,9 @@ public class SignupActivity extends AppCompatActivity {
         spannableString.setSpan(clickableSpan, startIndex, endIndex, 0);
         item.setText(spannableString);
         item.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void mostrarMensaje(String mensaje) {
+        Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show();
     }
 }

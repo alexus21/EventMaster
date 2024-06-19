@@ -2,17 +2,23 @@ package ues.pdm24.eventmaster.user;
 
 public class User {
     public String id;
+    public String name;
     public String email;
     public String password;
 
-    public User(String id, String email, String password) {
+    public User(String id, String name, String email, String password) {
         this.id = id;
+        this.name = name;
         this.email = email;
         this.password = password;
     }
 
-    public User() {
-        // Constructor vacío
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {

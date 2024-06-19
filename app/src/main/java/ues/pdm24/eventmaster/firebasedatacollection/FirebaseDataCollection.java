@@ -1,10 +1,12 @@
 package ues.pdm24.eventmaster.firebasedatacollection;
 
+import android.app.Application;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -14,7 +16,12 @@ import com.google.firebase.database.ValueEventListener;
 import ues.pdm24.eventmaster.user.User;
 import ues.pdm24.eventmaster.validations.EncryptPassword;
 
-public class FirebaseDataCollection extends AppCompatActivity {
+public class FirebaseDataCollection extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        FirebaseApp.initializeApp(this);
+    }
 
     static DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference().child("users");
 

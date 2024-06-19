@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="black">#1a100d</color>
+    <color name="white">#f1f6ee</color>
+
+    <color name="darkgrey">#373A40</color>
+    <color name="grey">#5a5a54</color>
+
+    <!--    Yeah, we reused them-->
+    <color name="blue_rackley">#18486c</color>
+    <color name="moonstone_blue">#6995b7</color>
+    <color name="sky_blue">#1fbeec</color>
+    <color name="yellow_peach">#f3c48d</color>
+    <color name="red_salmon_like">#c24748</color>
+
+    <color name="rackley">#8cb7d3</color>
+
+
 </resources>

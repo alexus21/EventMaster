@@ -1,6 +1,7 @@
 package ues.pdm24.eventmaster.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -49,11 +50,10 @@ public class HomeActivity extends AppCompatActivity {
         mainFragment = null;
 
         btnAgregarEventos.setOnClickListener(v -> {
-            Toast.makeText(this, "No sirve esta mierda", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, NewEventActivity.class));
         });
 
         bottomNavigation.setOnNavigationItemSelectedListener(this::handleNavigationItemSelected);
-
     }
 
     @SuppressLint("NonConstantResourceId")

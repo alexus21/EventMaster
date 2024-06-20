@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+//        startActivity(new Intent(this, LoginActivity.class));
         startActivity(new Intent(this, HomeActivity.class));
     }
 }

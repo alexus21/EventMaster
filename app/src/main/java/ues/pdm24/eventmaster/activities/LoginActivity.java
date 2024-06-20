@@ -86,11 +86,14 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
     private void iniciarSesion(String email, String password) {
+        String username = email.split("@")[0];
+
         FirebaseDataCollection.obtenerIdFirebase(email, firebaseId -> {
             if (firebaseId != null) {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean("isUserRegistered", true);
+                editor.putString("username", username);
                 editor.apply();
                 iniciarListaDestinosActivity();
             } else {

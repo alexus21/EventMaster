@@ -2,6 +2,7 @@ package ues.pdm24.eventmaster.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -18,6 +19,9 @@ import androidx.fragment.app.FragmentContainerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 import ues.pdm24.eventmaster.R;
 import ues.pdm24.eventmaster.fragments.CreatedEventsFragment;
 import ues.pdm24.eventmaster.fragments.EventListFragment;
@@ -27,8 +31,9 @@ public class HomeActivity extends AppCompatActivity {
     Fragment createdEventsFragment, mainFragment;
     FragmentContainerView fragmentContainerView;
     BottomNavigationView bottomNavigation;
-    TextView lblnameapp;
+    TextView lblnameapp, lblUsuarioLogeado;
     FloatingActionButton btnAgregarEventos;
+    CircleImageView btnUser;
     String nameApp = "";
 
     @Override
@@ -46,8 +51,22 @@ public class HomeActivity extends AppCompatActivity {
         fragmentContainerView = findViewById(R.id.fragmentContainerView);
         bottomNavigation = findViewById(R.id.bottomNavigation);
         lblnameapp = findViewById(R.id.lblnameapp);
+        lblUsuarioLogeado = findViewById(R.id.lblUsuarioLogeado);
         btnAgregarEventos = findViewById(R.id.btnAgregarEventos);
+        btnUser = findViewById(R.id.btnUser);
         mainFragment = null;
+
+        SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
+        lblUsuarioLogeado.setText(sharedPreferences.getString("username", "Invitado"));
+
+        btnUser.setOnClickListener(v -> {
+            // Cerrar sesión
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear();
+            editor.apply();
+
+            startActivity(new Intent(this, LoginActivity.class));
+        });
 
         btnAgregarEventos.setOnClickListener(v -> {
             startActivity(new Intent(this, NewEventActivity.class));

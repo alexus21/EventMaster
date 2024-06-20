@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -113,17 +116,28 @@ public class SignupActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     mostrarMensaje("Error al registrar usuario");
                 });
+        String username = email.split("@")[0];
+
         SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean("isUserRegistered", true);
+        editor.putString("username", username);
         editor.apply();
     }
 
     void createSpannableString(TextView item) {
-        spannableString = new SpannableString("¿Ya tienes cuenta? ¡Inicia sesión!");
+        String text = "¿Ya tienes cuenta? ¡Inicia sesión!";
+        spannableString = new SpannableString(text);
 
         int startIndex = 0;
-        int endIndex = "¿Ya tienes cuenta? ¡Inicia sesión!".length();
+        int endIndex = text.length();
+
+        // Definir el color personalizado
+        int customColor = ContextCompat.getColor(this, R.color.blue_rackley);
+
+        // Aplicar el color personalizado a todo el texto
+        ForegroundColorSpan colorSpan = new ForegroundColorSpan(customColor);
+        spannableString.setSpan(colorSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
@@ -134,7 +148,7 @@ public class SignupActivity extends AppCompatActivity {
             }
         };
 
-        spannableString.setSpan(clickableSpan, startIndex, endIndex, 0);
+        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         item.setText(spannableString);
         item.setMovementMethod(LinkMovementMethod.getInstance());
     }

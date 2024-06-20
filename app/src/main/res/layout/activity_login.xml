@@ -12,8 +12,8 @@
 
     <ImageView
         android:id="@+id/imgcontornocons"
-        android:layout_width="113dp"
-        android:layout_height="112dp"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
         android:foreground="@drawable/app_icon"
         app:layout_constraintBottom_toTopOf="@+id/grouplogin"
         app:layout_constraintEnd_toEndOf="parent"
@@ -82,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:fontFamily="@font/comfortaa_bold"
-                    android:text="CORREO"
+                    android:text=" Correo"
                     android:textColor="@color/darkgrey"
                     android:textSize="17sp" />
 
@@ -92,10 +92,8 @@
                     android:layout_height="wrap_content"
                     android:hint=" Ingresa tu correo"
                     android:textColor="@color/black"
-                    android:textColorHint="@color/grey"
-                    app:boxStrokeColor="@color/black"
-                    app:passwordToggleEnabled="true"
-                    app:passwordToggleTint="@color/blue_rackley">
+                    android:textColorHint="@color/black"
+                    app:boxStrokeColor="@color/black">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/txtUsuarioLogin"
@@ -103,7 +101,7 @@
                         android:layout_height="wrap_content"
                         android:ems="10"
                         android:fontFamily="@font/comfortaa_regular"
-                        android:inputType="text"
+                        android:inputType="textWebEmailAddress"
                         android:textColor="@color/black"
                         android:textColorHint="@color/grey"
                         android:textSize="18sp" />
@@ -121,7 +119,7 @@
                     android:ems="10"
                     android:fontFamily="@font/comfortaa_bold"
                     android:inputType="text"
-                    android:text=" Ingresa tu contraseña"
+                    android:text=" Contraseña"
                     android:textColor="@color/darkgrey"
                     android:textSize="17sp" />
 
@@ -130,9 +128,9 @@
                     android:id="@+id/password_text_input_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Contraseña"
+                    android:hint=" Ingresa tu contraseña"
                     android:textColor="@color/black"
-                    android:textColorHint="@color/grey"
+                    android:textColorHint="@color/black"
                     app:boxStrokeColor="@color/black"
                     app:passwordToggleEnabled="true"
                     app:passwordToggleTint="@color/blue_rackley">

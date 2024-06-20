@@ -28,6 +28,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.UUID;
 
 import ues.pdm24.eventmaster.R;
@@ -35,6 +36,9 @@ import ues.pdm24.eventmaster.validations.NetworkChecker;
 import ues.pdm24.eventmaster.validations.NewPostValidation;
 
 public class NewEventActivity extends AppCompatActivity {
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_PICK = 2;
+
     Spinner spinnerEventCategories;
     Button btnPublish;
     ImageView imgEvent;
@@ -63,16 +67,16 @@ public class NewEventActivity extends AppCompatActivity {
         editTextEventAssistants = findViewById(R.id.editTextEventAssistants);
         datePicker = findViewById(R.id.datePicker);
 
-        // Categoprías de eventos de ejemplo para el spinner
-        String[] eventCategories = new String[] {
-            "Concierto",
-            "Deportivo",
-            "Cultural",
-            "Social",
-            "Religioso",
-            "Académico",
-            "Empresarial",
-            "Familiar",
+        // Categorías de eventos de ejemplo para el spinner
+        String[] eventCategories = new String[]{
+                "Concierto",
+                "Deportivo",
+                "Cultural",
+                "Social",
+                "Religioso",
+                "Académico",
+                "Empresarial",
+                "Familiar",
         };
 
         // Crear un ArrayAdapter para el spinner
@@ -118,25 +122,25 @@ public class NewEventActivity extends AppCompatActivity {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         byte[] imageBytes = byteArrayOutputStream.toByteArray();
         String imageName = UUID.randomUUID().toString() + ".jpg";
-        /*StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images/" + localUserDAO.getUserId() + "/" + imageName);
-        UploadTask uploadTask = storageRef.putBytes(imageBytes);
+        // StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images/" + localUserDAO.getUserId() + "/" + imageName);
+        // UploadTask uploadTask = storageRef.putBytes(imageBytes);
 
-        handleUploadTask(uploadTask, storageRef);*/
+        // handleUploadTask(uploadTask, storageRef);
     }
 
     private void uploadImageToFirebaseStorage(Uri imageUri) {
         String imageName = UUID.randomUUID().toString() + ".jpg";
-        /*StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images/" + localUserDAO.getUserId() + "/" + imageName);
-        UploadTask uploadTask = storageRef.putFile(imageUri);
+        // StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images/" + localUserDAO.getUserId() + "/" + imageName);
+        // UploadTask uploadTask = storageRef.putFile(imageUri);
 
-        handleUploadTask(uploadTask, storageRef);*/
+        // handleUploadTask(uploadTask, storageRef);
     }
 
     private void handleUploadTask(UploadTask uploadTask, StorageReference storageRef) {
         uploadTask.addOnSuccessListener(taskSnapshot -> {
             storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                 String imageUrl = uri.toString();
-//                saveImageInfoToDatabase(imageUrl);
+                // saveImageInfoToDatabase(imageUrl);
             }).addOnFailureListener(e -> {
                 Log.e("Firebase", "Failed to get download URL", e);
                 enableUploadButton();
@@ -191,18 +195,40 @@ public class NewEventActivity extends AppCompatActivity {
 
         builder.setPositiveButton("Cámara", (dialog, which) -> {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(intent, 1);
+            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
         });
 
         builder.setNegativeButton("Galería", (dialog, which) -> {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(intent, 2);
+            startActivityForResult(intent, REQUEST_IMAGE_PICK);
         });
 
         builder.setNeutralButton("Cancelar", (dialog, which) -> dialog.dismiss());
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE && data != null) {
+                Bundle extras = data.getExtras();
+                selectedImageBitmap = (Bitmap) extras.get("data");
+                imgEvent.setImageBitmap(selectedImageBitmap);
+                selectedImageUri = null; // Clear Uri
+            } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
+                selectedImageUri = data.getData();
+                try {
+                    selectedImageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+                    imgEvent.setImageBitmap(selectedImageBitmap);
+                } catch (IOException e) {
+                    Log.e("ImagePick", "Failed to get image", e);
+                }
+            }
+        }
     }
 
     private void mostrarMensaje(String mensaje) {
@@ -216,6 +242,4 @@ public class NewEventActivity extends AppCompatActivity {
     private void enableUploadButton() {
         btnPublish.setEnabled(true);
     }
-
-
 }

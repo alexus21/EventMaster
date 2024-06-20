@@ -109,7 +109,7 @@ public class SignupActivity extends AppCompatActivity {
         User user = new User(id, name, email, password);
 
         // Insertar a Firebase:
-        reference.child("users").push().setValue(user)
+        reference.child("users").child(id).setValue(user)
                 .addOnSuccessListener(aVoid -> {
                     mostrarMensaje("Usuario registrado correctamente");
                 })

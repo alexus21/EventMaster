@@ -1,6 +1,8 @@
 package ues.pdm24.eventmaster.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
@@ -111,6 +113,10 @@ public class SignupActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     mostrarMensaje("Error al registrar usuario");
                 });
+        SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isUserRegistered", true);
+        editor.apply();
     }
 
     void createSpannableString(TextView item) {

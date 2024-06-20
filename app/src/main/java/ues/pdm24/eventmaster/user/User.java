@@ -13,6 +13,10 @@ public class User {
         this.password = password;
     }
 
+    public User(){
+        // Constructor vacío
+    }
+
     public String getName() {
         return name;
     }

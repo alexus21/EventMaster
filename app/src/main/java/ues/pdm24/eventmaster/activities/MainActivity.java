@@ -1,6 +1,8 @@
 package ues.pdm24.eventmaster.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -25,7 +27,18 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-//        startActivity(new Intent(this, LoginActivity.class));
+        // Obtener una instancia de SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
+
+        // Verificar si el usuario está registrado
+        boolean isUserRegistered = sharedPreferences.getBoolean("isUserRegistered", false);
+
+        // Si el usuario no está registrado, redirigir a la pantalla de registro
+        if (!isUserRegistered) {
+            startActivity(new Intent(this, LoginActivity.class));
+            return;
+        }
+
         startActivity(new Intent(this, HomeActivity.class));
     }
 }

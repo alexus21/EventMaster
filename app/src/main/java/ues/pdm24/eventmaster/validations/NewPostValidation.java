@@ -3,23 +3,30 @@ package ues.pdm24.eventmaster.validations;
 import android.widget.EditText;
 
 public class NewPostValidation {
-    public static boolean validateNewPost(String placeName, String placeDescription, String placeLocation,
-                                          EditText editTextPlaceName, EditText editTextPlaceDescription, EditText editTextPlaceLocation) {
-        if (placeName.isEmpty()) {
-            editTextPlaceName.setError("El nombre del lugar es requerido");
-            editTextPlaceName.requestFocus();
+    public static boolean validateNewPost(String eventTitle, String eventDescription, String eventLocation, String eventAssistants,
+                                          EditText editTextEventTitle, EditText editTextEventDescription, EditText editTextEventLocation, EditText editTextEventAssistants) {
+
+        if (eventTitle.isEmpty()) {
+            editTextEventTitle.setError("El nombre del lugar es requerido");
+            editTextEventTitle.requestFocus();
             return false;
         }
 
-        if (placeDescription.isEmpty()) {
-            editTextPlaceDescription.setError("La descripción del lugar es requerida");
-            editTextPlaceDescription.requestFocus();
+        if (eventDescription.isEmpty()) {
+            editTextEventDescription.setError("La descripción del lugar es requerida");
+            editTextEventDescription.requestFocus();
             return false;
         }
 
-        if (placeLocation.isEmpty()) {
-            editTextPlaceLocation.setError("La ubicación del lugar es requerida");
-            editTextPlaceLocation.requestFocus();
+        if (eventLocation.isEmpty()) {
+            editTextEventLocation.setError("La ubicación del lugar es requerida");
+            editTextEventLocation.requestFocus();
+            return false;
+        }
+
+        if (eventAssistants.isEmpty()) {
+            editTextEventAssistants.setError("El número de asistentes es requerido");
+            editTextEventAssistants.requestFocus();
             return false;
         }
 

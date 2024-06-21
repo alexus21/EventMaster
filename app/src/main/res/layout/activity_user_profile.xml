@@ -121,10 +121,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="50dp"
-            android:background="@drawable/bg_boton_agregardestino"
             android:fontFamily="@font/comfortaa_bold"
             android:text="Actualizar contraseña"
-            android:textColor="@color/white"
+            android:backgroundTint="@color/yellow_peach"
+            android:textColor="@color/black"
             android:textSize="16sp" />
 
         <Button
@@ -133,9 +133,9 @@
             android:layout_height="50dp"
             android:layout_gravity="center"
             android:layout_marginTop="25dp"
-            android:background="@drawable/bg_boton_cerrarsesion"
             android:fontFamily="@font/comfortaa_bold"
             android:text="Cerrar sesión"
+            android:backgroundTint="@color/moonstone_blue"
             android:textColor="@color/white"
             android:textSize="16sp"
             tools:ignore="MissingConstraints" />
@@ -146,9 +146,9 @@
             android:layout_height="50dp"
             android:layout_gravity="center"
             android:layout_marginTop="25dp"
-            android:background="@drawable/bg_boton_eliminarcuenta"
             android:fontFamily="@font/comfortaa_bold"
             android:text="Eliminar mi cuenta"
+            android:backgroundTint="@color/red_salmon_like"
             android:textColor="@color/white"
             android:textSize="16sp" />
     </LinearLayout>

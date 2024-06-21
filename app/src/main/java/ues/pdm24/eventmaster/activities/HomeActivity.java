@@ -60,10 +60,6 @@ public class HomeActivity extends AppCompatActivity {
         lblUsuarioLogeado.setText(sharedPreferences.getString("username", "Invitado"));
 
         btnUser.setOnClickListener(v -> {
-            // Cerrar sesión
-            /*SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.clear();
-            editor.apply();*/
             startActivity(new Intent(this, UserProfileActivity.class));
         });
 

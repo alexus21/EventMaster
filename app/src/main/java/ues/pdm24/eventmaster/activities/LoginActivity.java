@@ -93,6 +93,7 @@ public class LoginActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean("isUserRegistered", true);
+                editor.putString("userFirebaseId", firebaseId);
                 editor.putString("username", username);
                 editor.apply();
                 iniciarListaDestinosActivity();

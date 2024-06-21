@@ -26,6 +26,7 @@ public class UserProfileActivity extends AppCompatActivity {
     Button btnUpdatePassword, btnEndSession, btnDeleteMyAccount;
     EditText editTextUserEmail, txtPassword, txtRetypedPassword;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +47,17 @@ public class UserProfileActivity extends AppCompatActivity {
         txtRetypedPassword = findViewById(R.id.txtRetypedPassword);
         SharedPreferences preferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
 
-        editTextUserEmail.setText(preferences.getString("email", ""));
+        String id = preferences.getString("userFirebaseId", "");
+
+        FirebaseDataCollection.obtenerEmailFirebase(id, email -> {
+            if (email != null) {
+                editTextUserEmail.setText(email);
+            } else {
+                mostrarMensaje("Error al obtener el ID de Firebase");
+            }
+        });
+
+//        editTextUserEmail.setText(preferences.getString("email", ""));
         // Hacer el EditText no editable
         editTextUserEmail.setFocusable(false);
         editTextUserEmail.setFocusableInTouchMode(false);
@@ -63,9 +74,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 return;
             }
 
-//            localUserDAO.logout(userId);
-//            SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
-            SharedPreferences.Editor editor = getSharedPreferences("UserPreferences", MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = preferences.edit();
             editor.clear();
             editor.apply();
 
@@ -82,7 +91,9 @@ public class UserProfileActivity extends AppCompatActivity {
                 return;
             }
 
-//            showConfirmationDialog(userId);
+            String userId = preferences.getString("firebaseId", "");
+
+            showConfirmationDialog(userId);
         });
 
         btnUpdatePassword.setOnClickListener(v -> {
@@ -136,6 +147,9 @@ public class UserProfileActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess() {
                     mostrarMensaje("Cuenta eliminada correctamente");
+                    SharedPreferences.Editor editor = getSharedPreferences("UserPreferences", MODE_PRIVATE).edit();
+                    editor.clear();
+                    editor.apply();
                     startActivity(new Intent(UserProfileActivity.this, LoginActivity.class));
                     finish();
                 }

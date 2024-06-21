@@ -36,6 +36,10 @@ public class FirebaseDataCollection extends Application {
         void onCallback(String firebaseId);
     }
 
+    public interface EmailFirebaseCallback {
+        void onCallback(String firebaseEmail);
+    }
+
     public interface UpdatePasswordCallback {
         void onSuccess();
 
@@ -101,6 +105,26 @@ public class FirebaseDataCollection extends Application {
                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                     String idFirebase = userSnapshot.child("id").getValue(String.class);
                     callback.onCallback(idFirebase);
+                    return;
+                }
+                callback.onCallback(null); // No se encontró el email
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("DatabaseError", "Error al leer el ID de Firebase", databaseError.toException());
+                callback.onCallback(null);
+            }
+        });
+    }
+
+    public static void obtenerEmailFirebase(String id, EmailFirebaseCallback callback) {
+        databaseRef.orderByChild("id").equalTo(id).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    String emailFirebase = userSnapshot.child("email").getValue(String.class);
+                    callback.onCallback(emailFirebase);
                     return;
                 }
                 callback.onCallback(null); // No se encontró el email

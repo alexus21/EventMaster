@@ -61,9 +61,10 @@ public class HomeActivity extends AppCompatActivity {
 
         btnUser.setOnClickListener(v -> {
             // Cerrar sesión
-            SharedPreferences.Editor editor = sharedPreferences.edit();
+            /*SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.clear();
-            editor.apply();
+            editor.apply();*/
+            startActivity(new Intent(this, UserProfileActivity.class));
 
             startActivity(new Intent(this, LoginActivity.class));
         });

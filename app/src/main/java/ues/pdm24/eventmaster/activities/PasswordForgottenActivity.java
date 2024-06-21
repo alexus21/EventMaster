@@ -22,6 +22,7 @@ import com.google.firebase.database.DatabaseReference;
 
 import ues.pdm24.eventmaster.R;
 import ues.pdm24.eventmaster.firebasedatacollection.FirebaseDataCollection;
+import ues.pdm24.eventmaster.validations.EncryptPassword;
 import ues.pdm24.eventmaster.validations.NetworkChecker;
 import ues.pdm24.eventmaster.validations.UserValidator;
 
@@ -31,7 +32,6 @@ public class PasswordForgottenActivity extends AppCompatActivity {
     Button btnRecoverPassword;
     TextView lbl_cancel_action;
     SpannableString spannableString;
-    public DatabaseReference reference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

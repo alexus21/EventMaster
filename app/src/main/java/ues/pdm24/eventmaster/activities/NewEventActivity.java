@@ -12,9 +12,11 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -88,20 +90,7 @@ public class NewEventActivity extends AppCompatActivity {
         datePicker = findViewById(R.id.datePicker);
 
         // Categorías de eventos de ejemplo para el spinner
-        String[] eventCategories = new String[]{
-                "Concierto",
-                "Deportivo",
-                "Cultural",
-                "Social",
-                "Religioso",
-                "Académico",
-                "Empresarial",
-                "Familiar",
-        };
-
-        // Crear un ArrayAdapter para el spinner
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, eventCategories);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> adapter = getStringArrayAdapter();
         spinnerEventCategories.setAdapter(adapter);
 
         imgEvent.setOnClickListener(v -> showConfirmationDialog());
@@ -135,6 +124,25 @@ public class NewEventActivity extends AppCompatActivity {
                 uploadImageToFirebaseStorage(selectedImageUri, eventTitle, eventLocation, eventDescription, eventAssistants);
             }
         });
+    }
+
+    @NonNull
+    private ArrayAdapter<String> getStringArrayAdapter() {
+        String[] eventCategories = new String[]{
+                "Concierto",
+                "Deportivo",
+                "Cultural",
+                "Social",
+                "Religioso",
+                "Académico",
+                "Empresarial",
+                "Familiar",
+        };
+
+        // Crear un ArrayAdapter para el spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, eventCategories);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        return adapter;
     }
 
     private void uploadImageToFirebaseStorage(Bitmap bitmap, String eventTitle, String eventLocation, String eventDescription, String eventAssistants) {

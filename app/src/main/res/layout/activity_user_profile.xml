@@ -39,7 +39,7 @@
         app:layout_constraintVertical_bias="0.115">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextAddComments"
+            android:id="@+id/editTextUserEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/comfortaa_regular"
@@ -116,14 +116,14 @@
         app:layout_constraintTop_toBottomOf="@+id/ubicacion_text_input_layout">
 
         <Button
-            android:id="@+id/btnSetRating"
+            android:id="@+id/btnUpdatePassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="50dp"
             android:background="@drawable/bg_boton_agregardestino"
             android:fontFamily="@font/comfortaa_bold"
-            android:text="Actualizar Contraseña"
+            android:text="Actualizar contraseña"
             android:textColor="@color/white"
             android:textSize="16sp" />
 

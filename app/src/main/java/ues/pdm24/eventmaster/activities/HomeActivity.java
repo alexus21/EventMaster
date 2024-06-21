@@ -65,8 +65,6 @@ public class HomeActivity extends AppCompatActivity {
             editor.clear();
             editor.apply();*/
             startActivity(new Intent(this, UserProfileActivity.class));
-
-            startActivity(new Intent(this, LoginActivity.class));
         });
 
         btnAgregarEventos.setOnClickListener(v -> {

@@ -23,8 +23,8 @@ import ues.pdm24.eventmaster.validations.UserValidator;
 
 public class UserProfileActivity extends AppCompatActivity {
     ImageView imgAtras;
-    Button btnUpdateMyPassword, btnEndSession, btnDeleteMyAccount;
-    EditText txtEmail, txtPassword, txtRetypedPassword;
+    Button btnUpdatePassword, btnEndSession, btnDeleteMyAccount;
+    EditText editTextUserEmail, txtPassword, txtRetypedPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,20 +38,20 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
         imgAtras = findViewById(R.id.imgAtras);
-        btnUpdateMyPassword = findViewById(R.id.btnSetRating);
+        btnUpdatePassword = findViewById(R.id.btnUpdatePassword);
         btnEndSession = findViewById(R.id.btnEndSession);
         btnDeleteMyAccount = findViewById(R.id.btnDeleteMyAccount);
-        txtEmail = findViewById(R.id.editTextAddComments);
+        editTextUserEmail = findViewById(R.id.editTextUserEmail);
         txtPassword = findViewById(R.id.txtPassword);
         txtRetypedPassword = findViewById(R.id.txtRetypedPassword);
         SharedPreferences preferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
 
-        txtEmail.setText(preferences.getString("email", ""));
+        editTextUserEmail.setText(preferences.getString("email", ""));
         // Hacer el EditText no editable
-        txtEmail.setFocusable(false);
-        txtEmail.setFocusableInTouchMode(false);
-        txtEmail.setClickable(false);
-        txtEmail.setLongClickable(false);
+        editTextUserEmail.setFocusable(false);
+        editTextUserEmail.setFocusableInTouchMode(false);
+        editTextUserEmail.setClickable(false);
+        editTextUserEmail.setLongClickable(false);
 
         imgAtras.setOnClickListener(v -> {
             startActivity(new Intent(UserProfileActivity.this, HomeActivity.class));
@@ -68,7 +68,12 @@ public class UserProfileActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = getSharedPreferences("UserPreferences", MODE_PRIVATE).edit();
             editor.clear();
             editor.apply();
-            startActivity(new Intent(UserProfileActivity.this, LoginActivity.class));
+
+            Intent intent = new Intent(UserProfileActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish(); // Cierra la actividad actual
+
         });
 
         btnDeleteMyAccount.setOnClickListener(v -> {
@@ -80,8 +85,8 @@ public class UserProfileActivity extends AppCompatActivity {
 //            showConfirmationDialog(userId);
         });
 
-        btnUpdateMyPassword.setOnClickListener(v -> {
-            String email = txtEmail.getText().toString().trim();
+        btnUpdatePassword.setOnClickListener(v -> {
+            String email = editTextUserEmail.getText().toString().trim();
             String password = txtPassword.getText().toString().trim();
             String retypePassword = txtRetypedPassword.getText().toString().trim();
 
@@ -90,13 +95,13 @@ public class UserProfileActivity extends AppCompatActivity {
                 return;
             }
 
-            boolean isValid = UserValidator.validateLogin(email, password, retypePassword, txtEmail, txtPassword, txtRetypedPassword);
+            boolean isValid = UserValidator.validateLogin(email, password, retypePassword, editTextUserEmail, txtPassword, txtRetypedPassword);
 
             if (!isValid) {
                 return;
             }
 
-            btnUpdateMyPassword.setEnabled(false);
+            btnUpdatePassword.setEnabled(false);
 
 //            localUserDAO = DatabaseSingleton.getDatabase(this).localUserDAO();
 

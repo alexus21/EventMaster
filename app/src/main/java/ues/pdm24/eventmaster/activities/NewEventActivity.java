@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import ues.pdm24.eventmaster.R;
+import ues.pdm24.eventmaster.models.events.Event;
 import ues.pdm24.eventmaster.validations.NetworkChecker;
 import ues.pdm24.eventmaster.validations.NewPostValidation;
 
@@ -46,6 +47,25 @@ public class NewEventActivity extends AppCompatActivity {
     DatePicker datePicker;
     Bitmap selectedImageBitmap = null;
     Uri selectedImageUri = null;
+
+    private void uploadEvent(String image, String title, String location, String category, String date, String description, int assistants) {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Events");
+
+        Event event = new Event(image, title, location, category, date, description, assistants);
+
+        reference.push().setValue(event)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firebase", "Database entry created successfully");
+                    mostrarMensaje("Publicación exitosa");
+                    enableUploadButton();
+                    startActivity(new Intent(NewEventActivity.this, HomeActivity.class));
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firebase", "Failed to create database entry", e);
+                    enableUploadButton();
+                });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,37 +130,40 @@ public class NewEventActivity extends AppCompatActivity {
             disableUploadButton();
 
             if (selectedImageBitmap != null) {
-                uploadImageToFirebaseStorage(selectedImageBitmap);
+                uploadImageToFirebaseStorage(selectedImageBitmap, eventTitle, eventLocation, eventDescription, eventAssistants);
             } else {
-                uploadImageToFirebaseStorage(selectedImageUri);
+                uploadImageToFirebaseStorage(selectedImageUri, eventTitle, eventLocation, eventDescription, eventAssistants);
             }
         });
     }
 
-    private void uploadImageToFirebaseStorage(Bitmap bitmap) {
+    private void uploadImageToFirebaseStorage(Bitmap bitmap, String eventTitle, String eventLocation, String eventDescription, String eventAssistants) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         byte[] imageBytes = byteArrayOutputStream.toByteArray();
         String imageName = UUID.randomUUID().toString() + ".jpg";
-        // StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images/" + localUserDAO.getUserId() + "/" + imageName);
-        // UploadTask uploadTask = storageRef.putBytes(imageBytes);
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images/" + imageName);
+        UploadTask uploadTask = storageRef.putBytes(imageBytes);
 
-        // handleUploadTask(uploadTask, storageRef);
+        handleUploadTask(uploadTask, storageRef, eventTitle, eventLocation, eventDescription, eventAssistants);
     }
 
-    private void uploadImageToFirebaseStorage(Uri imageUri) {
+    private void uploadImageToFirebaseStorage(Uri imageUri, String eventTitle, String eventLocation, String eventDescription, String eventAssistants) {
         String imageName = UUID.randomUUID().toString() + ".jpg";
-        // StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images/" + localUserDAO.getUserId() + "/" + imageName);
-        // UploadTask uploadTask = storageRef.putFile(imageUri);
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("images/" + imageName);
+        UploadTask uploadTask = storageRef.putFile(imageUri);
 
-        // handleUploadTask(uploadTask, storageRef);
+        handleUploadTask(uploadTask, storageRef, eventTitle, eventLocation, eventDescription, eventAssistants);
     }
 
-    private void handleUploadTask(UploadTask uploadTask, StorageReference storageRef) {
+    private void handleUploadTask(UploadTask uploadTask, StorageReference storageRef, String eventTitle, String eventLocation, String eventDescription, String eventAssistants) {
         uploadTask.addOnSuccessListener(taskSnapshot -> {
             storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                 String imageUrl = uri.toString();
-                // saveImageInfoToDatabase(imageUrl);
+                //saveImageInfoToDatabase(imageUrl);
+                uploadEvent(imageUrl, eventTitle, eventLocation, spinnerEventCategories.getSelectedItem().toString(),
+                        datePicker.getDayOfMonth() + "/" + datePicker.getMonth() + "/" + datePicker.getYear(),
+                        eventDescription, Integer.parseInt(eventAssistants));
             }).addOnFailureListener(e -> {
                 Log.e("Firebase", "Failed to get download URL", e);
                 enableUploadButton();

@@ -1,4 +1,4 @@
-package ues.pdm24.eventmaster.user;
+package ues.pdm24.eventmaster.models.user;
 
 public class User {
     public String id;

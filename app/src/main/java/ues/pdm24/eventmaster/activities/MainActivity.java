@@ -41,4 +41,10 @@ public class MainActivity extends AppCompatActivity {
 
         startActivity(new Intent(this, HomeActivity.class));
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        finish();
+    }
 }

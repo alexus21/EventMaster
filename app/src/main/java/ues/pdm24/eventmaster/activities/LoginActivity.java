@@ -159,6 +159,7 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putString("username", username);
                 editor.apply();
                 iniciarListaDestinosActivity();
+                finish();
             } else {
                 mostrarMensajeError("Error al obtener el ID de Firebase");
             }

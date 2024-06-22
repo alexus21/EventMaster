@@ -175,6 +175,7 @@ public class SignupActivity extends AppCompatActivity {
         editor.putString("userFirebaseId", id);
         editor.putString("username", username);
         editor.apply();
+        finish();
     }
 
     void createSpannableString(TextView item) {

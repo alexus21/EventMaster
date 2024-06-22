@@ -1,7 +1,6 @@
 package ues.pdm24.eventmaster.activities;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,6 +20,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import ues.pdm24.eventmaster.R;
 import ues.pdm24.eventmaster.firebasedatacollection.FirebaseDataCollection;
 import ues.pdm24.eventmaster.validations.NetworkChecker;
@@ -34,6 +38,8 @@ public class LoginActivity extends AppCompatActivity {
     EditText txtUsuarioLogin, txtConstrasenaLogin;
     Button btn_ingresar;
 
+    FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +50,8 @@ public class LoginActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        mAuth = FirebaseAuth.getInstance();
 
         lbl_login_aActivitySignup = findViewById(R.id.lbl_login_aActivitySignup);
         lbl_password_forgotten = findViewById(R.id.lbl_password_forgotten);
@@ -58,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
             String email = txtUsuarioLogin.getText().toString().trim();
             String password = txtConstrasenaLogin.getText().toString().trim();
 
-            if(NetworkChecker.checkInternetConnection(this)) {
+            if (NetworkChecker.checkInternetConnection(this)) {
                 mostrarMensajeError("No hay conexión a internet");
                 return;
             }
@@ -80,20 +88,74 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     });
                 } else {
-                    mostrarMensajeError("Correo o contraseña incorrectos");
+                    mostrarMensajeError("El correo ingresado no está registrado");
                 }
             });
         });
     }
+
+    private void authentification(String email, String password) {
+        FirebaseUser user = mAuth.getCurrentUser();
+
+        if (user == null) {
+            // No hay ningún usuario autenticado, crea uno nuevo
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(LoginActivity.this, "Usuario registrado y autenticado exitosamente", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Error al registrar usuario", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(LoginActivity.this, "Error al registrar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        } else {
+            // Hay un usuario autenticado, verificar si es el mismo correo
+            if (user.getEmail().equals(email)) {
+                // Usuario ya autenticado con el mismo correo
+                Toast.makeText(LoginActivity.this, "Usuario ya autenticado", Toast.LENGTH_SHORT).show();
+            } else {
+                // Usuario autenticado con un correo diferente, cerrar sesión
+                mAuth.signOut();
+                // Intentar autenticar al nuevo usuario
+                mAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // Si el usuario no está registrado, registrarlo
+                                mAuth.createUserWithEmailAndPassword(email, password)
+                                        .addOnCompleteListener(createTask -> {
+                                            if (createTask.isSuccessful()) {
+                                                Toast.makeText(LoginActivity.this, "Usuario registrado y autenticado exitosamente", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(LoginActivity.this, "Error al registrar usuario", Toast.LENGTH_SHORT).show();
+                                            }
+                                        })
+                                        .addOnFailureListener(e -> Toast.makeText(LoginActivity.this, "Error al registrar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            }
+                        })
+                        .addOnFailureListener(e -> Toast.makeText(LoginActivity.this, "Error al iniciar sesión: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        }
+    }
+
+
     private void iniciarSesion(String email, String password) {
         String username = email.split("@")[0];
 
         FirebaseDataCollection.obtenerIdFirebase(email, firebaseId -> {
             if (firebaseId != null) {
-                SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
+                /*SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean("isUserRegistered", true);
                 editor.putString("userFirebaseId", firebaseId);
+                editor.putString("username", username);
+                editor.apply();*/
+                authentification(email, password);
+                SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("userFirebaseId", firebaseId);
+                editor.putString("email", email);
                 editor.putString("username", username);
                 editor.apply();
                 iniciarListaDestinosActivity();
@@ -129,5 +191,13 @@ public class LoginActivity extends AppCompatActivity {
         spannableString.setSpan(clickableSpan, startIndex, endIndex, 0);
         item.setText(spannableString);
         item.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void onComplete(Task<AuthResult> task) {
+        if (task.isSuccessful()) {
+            mostrarMensajeError("Inicio de sesión exitoso");
+        } else {
+            mostrarMensajeError("Correo o contraseña incorrectos");
+        }
     }
 }

@@ -15,6 +15,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import ues.pdm24.eventmaster.R;
 import ues.pdm24.eventmaster.firebasedatacollection.FirebaseDataCollection;
 import ues.pdm24.eventmaster.validations.EncryptPassword;
@@ -25,6 +28,23 @@ public class UserProfileActivity extends AppCompatActivity {
     ImageView imgAtras;
     Button btnUpdatePassword, btnEndSession, btnDeleteMyAccount;
     EditText editTextUserEmail, txtPassword, txtRetypedPassword;
+
+    private FirebaseAuth mAuth;
+
+    private void signOut() {
+        mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Error al cerrar sesión ", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error al cerrar sesión: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+
+        mAuth.signOut();
+    }
 
 
     @Override
@@ -47,7 +67,10 @@ public class UserProfileActivity extends AppCompatActivity {
         txtRetypedPassword = findViewById(R.id.txtRetypedPassword);
         SharedPreferences preferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
 
+        mAuth = FirebaseAuth.getInstance();
+
         String id = preferences.getString("userFirebaseId", "");
+        Toast.makeText(this, "ID de Firebase: " + id, Toast.LENGTH_SHORT).show();
 
         FirebaseDataCollection.obtenerEmailFirebase(id, email -> {
             if (email != null) {
@@ -72,6 +95,13 @@ public class UserProfileActivity extends AppCompatActivity {
             if(NetworkChecker.checkInternetConnection(this)) {
                 mostrarMensaje("No hay conexión a internet");
                 return;
+            }
+
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+
+            if (currentUser != null) {
+                Toast.makeText(this, "usuario autenticado: " + currentUser.getEmail(), Toast.LENGTH_SHORT).show();
+                signOut();
             }
 
             SharedPreferences.Editor editor = preferences.edit();

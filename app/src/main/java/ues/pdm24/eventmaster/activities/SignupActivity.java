@@ -22,6 +22,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -43,6 +45,53 @@ public class SignupActivity extends AppCompatActivity {
     SpannableString spannableString;
     TextView lbl_register_aActivityLogin;
 
+    FirebaseAuth mAuth;
+
+    private void authentification(String email, String password) {
+        FirebaseUser user = mAuth.getCurrentUser();
+
+        if (user == null) {
+            // No hay ningún usuario autenticado, crea uno nuevo
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(SignupActivity.this, "Usuario registrado y autenticado exitosamente", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(SignupActivity.this, "Error al registrar usuario", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(SignupActivity.this, "Error al registrar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        } else {
+            // Hay un usuario autenticado, verificar si es el mismo correo
+            if (user.getEmail().equals(email)) {
+                // Usuario ya autenticado con el mismo correo
+                Toast.makeText(SignupActivity.this, "Usuario ya autenticado", Toast.LENGTH_SHORT).show();
+            } else {
+                // Usuario autenticado con un correo diferente, cerrar sesión
+                mAuth.signOut();
+                // Intentar autenticar al nuevo usuario
+                mAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(SignupActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // Si el usuario no está registrado, registrarlo
+                                mAuth.createUserWithEmailAndPassword(email, password)
+                                        .addOnCompleteListener(createTask -> {
+                                            if (createTask.isSuccessful()) {
+                                                Toast.makeText(SignupActivity.this, "Usuario registrado y autenticado exitosamente", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(SignupActivity.this, "Error al registrar usuario", Toast.LENGTH_SHORT).show();
+                                            }
+                                        })
+                                        .addOnFailureListener(e -> Toast.makeText(SignupActivity.this, "Error al registrar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            }
+                        })
+                        .addOnFailureListener(e -> Toast.makeText(SignupActivity.this, "Error al iniciar sesión: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +102,8 @@ public class SignupActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        mAuth = FirebaseAuth.getInstance();
 
         txtNameRegistered = findViewById(R.id.txtNameRegistered);
         txtCorreoRegister = findViewById(R.id.txtCorreoRegister);
@@ -115,6 +166,8 @@ public class SignupActivity extends AppCompatActivity {
                     mostrarMensaje("Error al registrar usuario");
                 });
         String username = email.split("@")[0];
+
+        authentification(email, password);
 
         SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();

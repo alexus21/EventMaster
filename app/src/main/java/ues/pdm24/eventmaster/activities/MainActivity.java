@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
             startActivity(new Intent(this, HomeActivity.class));
         }else{
+            Toast.makeText(this, "No hay usuario autenticado", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(this, LoginActivity.class));
         }
     }

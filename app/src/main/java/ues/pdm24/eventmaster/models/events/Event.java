@@ -77,4 +77,9 @@ public class Event {
     public void setAssistants(int assistants) {
         this.assistants = assistants;
     }
+
+    @Override
+    public String toString() {
+        return "Event{" + title + "}";
+    }
 }

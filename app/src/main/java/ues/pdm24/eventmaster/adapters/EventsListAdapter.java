@@ -1,18 +1,38 @@
 package ues.pdm24.eventmaster.adapters;
 
+import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+
+import java.util.ArrayList;
+import java.util.zip.Inflater;
+
+import ues.pdm24.eventmaster.R;
+import ues.pdm24.eventmaster.models.events.Event;
 
 public class EventsListAdapter extends BaseAdapter {
+
+    private Context context;
+    private ArrayList<Event> listEvents;
+
+    public EventsListAdapter(Context context, ArrayList<Event> listEvents) {
+        this.context = context;
+        this.listEvents = listEvents;
+    }
     @Override
     public int getCount() {
-        return 0;
+        return listEvents.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return listEvents.get(position);
     }
 
     @Override
@@ -22,6 +42,22 @@ public class EventsListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        return null;
+
+        if (convertView == null) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_list_adapter_events, null);
+        }
+
+        ImageView imgEvent = convertView.findViewById(R.id.imageView);
+        TextView txtEventName = convertView.findViewById(R.id.textViewPlaceName);
+        TextView textViewPublishedBy = convertView.findViewById(R.id.textViewPublishedBy);
+
+        Event event = listEvents.get(position);
+
+        Glide.with(context).load(event.getImage()).into(imgEvent);
+
+        txtEventName.setText(event.getTitle());
+        textViewPublishedBy.setText(event.getDescription());
+
+        return convertView;
     }
 }

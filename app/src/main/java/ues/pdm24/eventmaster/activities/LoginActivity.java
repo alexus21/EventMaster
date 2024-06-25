@@ -107,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Error al registrar usuario", Toast.LENGTH_SHORT).show();
                         }
                     })
-                    .addOnFailureListener(e -> Toast.makeText(LoginActivity.this, "Error al registrar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> Toast.makeText(LoginActivity.this, "Error al registrar usuario:: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         } else {
             // Hay un usuario autenticado, verificar si es el mismo correo
             if (user.getEmail().equals(email)) {

@@ -32,19 +32,18 @@ public class UserProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
     private void signOut() {
-        mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(this, "Error al cerrar sesión ", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Error al cerrar sesión: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
-
-        mAuth.signOut();
-    }
+    mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
+        if (task.isSuccessful()) {
+            Toast.makeText(this, "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
+            mAuth.signOut();
+        } else {
+            Toast.makeText(this, "Error al cerrar sesión ", Toast.LENGTH_SHORT).show();
+        }
+    })
+    .addOnFailureListener(e -> {
+        Toast.makeText(this, "Error al cerrar sesión: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+    });
+}
 
 
     @Override

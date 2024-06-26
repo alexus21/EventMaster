@@ -212,8 +212,9 @@ public class NewEventActivity extends AppCompatActivity {
             storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                 String imageUrl = uri.toString();
                 //saveImageInfoToDatabase(imageUrl);
+                System.out.println(getDatePicker(datePicker));
                 uploadEvent(imageUrl, eventTitle, eventLocation, spinnerEventCategories.getSelectedItem().toString(),
-                        datePicker.getDayOfMonth() + "/" + datePicker.getMonth() + "/" + datePicker.getYear(),
+                        getDatePicker(datePicker),
                         eventDescription, Integer.parseInt(eventAssistants));
             }).addOnFailureListener(e -> {
                 Log.e("Firebase", "Failed to get download URL", e);
@@ -223,6 +224,15 @@ public class NewEventActivity extends AppCompatActivity {
             Log.e("Firebase", "Upload failed", exception);
             enableUploadButton();
         });
+    }
+
+    private String getDatePicker(DatePicker myDatePicker) {
+        int day = myDatePicker.getDayOfMonth();
+        int month = myDatePicker.getMonth() + 1;
+        int year = myDatePicker.getYear();
+
+        // Format the date as "year-month-day"
+        return year + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day);
     }
 
     /*private void saveImageInfoToDatabase(String imageUrl) {

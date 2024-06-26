@@ -1,6 +1,7 @@
 package ues.pdm24.eventmaster.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,8 +34,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import ues.pdm24.eventmaster.R;
-import ues.pdm24.eventmaster.models.events.Event;
+/*import ues.pdm24.eventmaster.models.events.Event;*/
+import ues.pdm24.eventmaster.api.interfaces.EventsApi;
+import ues.pdm24.eventmaster.api.models.Event;
 import ues.pdm24.eventmaster.validations.NetworkChecker;
 import ues.pdm24.eventmaster.validations.NewPostValidation;
 
@@ -52,8 +60,43 @@ public class NewEventActivity extends AppCompatActivity {
 
     private void uploadEvent(String image, String title, String location, String category, String date, String description, int assistants) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Events");
+        SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
+        String userId = sharedPreferences.getString("userFirebaseId", "1234");
 
-        Event event = new Event(image, title, location, category, date, description, assistants);
+        Event event = new Event(0, title, location, category, date, description, assistants, userId, image);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://event-api-cfbb36feb6d3.herokuapp.com/api/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        EventsApi eventsApi = retrofit.create(EventsApi.class);
+
+        Call<Event> call = eventsApi.createEvents(event);
+
+        call.enqueue(new Callback<Event>() {
+            @Override
+            public void onResponse(Call<Event> call, Response<Event> response) {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+
+                Event eventResponse = response.body();
+                Log.d("Event Response", eventResponse.toString());
+                mostrarMensaje("Publicación exitosa");
+                enableUploadButton();
+                startActivity(new Intent(NewEventActivity.this, HomeActivity.class));
+                finish();
+            }
+
+            @Override
+            public void onFailure(Call<Event> call, Throwable t) {
+                Log.e("Error", "Error al obtener los eventos: " + t.getMessage());
+                enableUploadButton();
+            }
+        });
+
+        /*Event event = new Event(image, title, location, category, date, description, assistants);
 
         reference.push().setValue(event)
                 .addOnSuccessListener(aVoid -> {
@@ -66,7 +109,7 @@ public class NewEventActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.e("Firebase", "Failed to create database entry", e);
                     enableUploadButton();
-                });
+                });*/
     }
 
     @Override

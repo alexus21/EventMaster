@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,13 +20,24 @@ import androidx.fragment.app.FragmentContainerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import ues.pdm24.eventmaster.R;
+import ues.pdm24.eventmaster.api.interfaces.EventsApi;
+import ues.pdm24.eventmaster.api.interfaces.JsonPlaceHolderApi;
+import ues.pdm24.eventmaster.api.models.Event;
+import ues.pdm24.eventmaster.api.models.Posts;
 import ues.pdm24.eventmaster.fragments.CreatedEventsFragment;
 import ues.pdm24.eventmaster.fragments.EventListFragment;
 import ues.pdm24.eventmaster.fragments.TargetedEventsFragment;
+import ues.pdm24.eventmaster.validations.NetworkUtils;
 
 public class HomeActivity extends AppCompatActivity {
     Fragment createdEventsFragment, mainFragment;
@@ -54,7 +66,12 @@ public class HomeActivity extends AppCompatActivity {
         lblUsuarioLogeado = findViewById(R.id.lblUsuarioLogeado);
         btnAgregarEventos = findViewById(R.id.btnAgregarEventos);
         btnUser = findViewById(R.id.btnUser);
-        mainFragment = null;
+        mainFragment = new EventListFragment();
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainerView, mainFragment)
+                .commit();
+        lblnameapp.setText("Eventos");
 
         SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
         lblUsuarioLogeado.setText(sharedPreferences.getString("username", "Invitado"));
@@ -90,6 +107,8 @@ public class HomeActivity extends AppCompatActivity {
                 break;
         }
 
+        //getEvents();
+
         if (mainFragment != null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainerView, mainFragment)
@@ -97,5 +116,76 @@ public class HomeActivity extends AppCompatActivity {
             lblnameapp.setText(nameApp);
         }
         return true;
+    }
+
+    private void getPosts() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://jsonplaceholder.typicode.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        JsonPlaceHolderApi jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
+        Call<List<Posts>> call = jsonPlaceHolderApi.getPosts();
+
+        call.enqueue(new Callback<List<Posts>>() {
+            @Override
+            public void onResponse(Call<List<Posts>> call, Response<List<Posts>> response) {
+                if (!response.isSuccessful()) {
+                    Log.e("Error", "Error al obtener los posts");
+                    return;
+                }
+
+                List<Posts> posts = response.body();
+                for (Posts post : posts) {
+                    Log.i("Post Obtained", post.getTitle());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Posts>> call, Throwable t) {
+                Log.e("Error", "Error al obtener los posts");
+            }
+        });
+    }
+
+    private void getEvents() {
+
+        String ipAddres = NetworkUtils.getIPv4Address();
+
+        if (ipAddres != null) {
+            String baseUrl = "http://" + ipAddres + ":3000/api/";
+            Toast.makeText(this, "Dirección IP: " + ipAddres, Toast.LENGTH_SHORT).show();
+
+        }else{
+            Toast.makeText(this, "No se pudo obtener la dirección IP", Toast.LENGTH_SHORT).show();
+        }
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://event-api-cfbb36feb6d3.herokuapp.com/api/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        EventsApi eventsApi = retrofit.create(EventsApi.class);
+        Call<List<Event>> call = eventsApi.getEvents();
+
+        call.enqueue(new Callback<List<Event>>() {
+            @Override
+            public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
+                if (!response.isSuccessful()) {
+                    Log.e("Error", "Error al obtener los eventos");
+                    return;
+                }
+
+                List<Event> events = response.body();
+                for (Event event : events) {
+                    Toast.makeText(getBaseContext(), String.valueOf(event.getCapacity()), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Event>> call, Throwable t) {
+                Log.e("Error", "Error al obtener los eventos: " + t.getMessage());
+            }
+        });
     }
 }

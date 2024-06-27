@@ -138,36 +138,35 @@ public class EventsListAdapter extends BaseAdapter {
                     eventReference
                             .child("Events")
                             .child(String.valueOf(listEvents.get(position).getId()))
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                            if (snapshot.exists()) {
-                                                EventCount eventCount = snapshot.getValue(EventCount.class);
-                                                snapshot.getRef().removeValue();
-                                                eventCount.setLibre(eventCount.getLibre() - 1);
-                                                eventCount.setAgendado(eventCount.getAgendado() + 1);
-                                                snapshot.getRef().setValue(eventCount);
-                                            }else{
-                                                EventCount eventCount = new
-                                                        EventCount(listEvents.get(position).getCapacity(),
-                                                        listEvents.get(position).getCapacity() - 1, 1);
-                                                snapshot.getRef().setValue(eventCount);
-                                            }
-                                        }
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if (snapshot.exists()) {
+                                        EventCount eventCount = snapshot.getValue(EventCount.class);
+                                        snapshot.getRef().removeValue();
+                                        eventCount.setLibre(eventCount.getLibre() - 1);
+                                        eventCount.setAgendado(eventCount.getAgendado() + 1);
+                                        snapshot.getRef().setValue(eventCount);
+                                    } else {
+                                        EventCount eventCount = new
+                                                EventCount(listEvents.get(position).getCapacity(),
+                                                listEvents.get(position).getCapacity() - 1, 1);
+                                        snapshot.getRef().setValue(eventCount);
+                                    }
+                                }
 
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
-                                            Log.e("EventsListAdapter", "Error updating event count", error.toException());
-                                            Toast.makeText(context, "Error al confirmar asistencia", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Log.e("EventsListAdapter", "Error updating event count", error.toException());
+                                    Toast.makeText(context, "Error al confirmar asistencia", Toast.LENGTH_SHORT).show();
+                                }
+                            });
 
 
                     imageViewFavouritePlaceMark.setVisibility(View.GONE);
                     Toast.makeText(context, "Asistencia confirmada", Toast.LENGTH_SHORT).show();
                 }
             });
-
         } else {
             imageViewFavouritePlaceMark.setVisibility(View.GONE);
         }

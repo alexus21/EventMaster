@@ -1,44 +1,48 @@
 package ues.pdm24.eventmaster.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.ListView;
+import android.widget.Toast;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 import ues.pdm24.eventmaster.R;
+import ues.pdm24.eventmaster.adapters.TargetedEventsListAdapter;
+import ues.pdm24.eventmaster.api.instances.RetrofitClient;
+import ues.pdm24.eventmaster.api.interfaces.EventsApi;
+import ues.pdm24.eventmaster.api.models.Event;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link TargetedEventsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class TargetedEventsFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private ListView listViewTodosProximosEventos;
+    private ArrayList<Event> listEvents;
 
     public TargetedEventsFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MyEventsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static TargetedEventsFragment newInstance(String param1, String param2) {
         TargetedEventsFragment fragment = new TargetedEventsFragment();
         Bundle args = new Bundle();
@@ -60,7 +64,78 @@ public class TargetedEventsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_targeted_events, container, false);
+
+        View root = inflater.inflate(R.layout.fragment_targeted_events, container, false);
+
+        listEvents = new ArrayList<>();
+
+        listViewTodosProximosEventos = root.findViewById(R.id.listViewTodosProximosEventos);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+        Retrofit retrofit = RetrofitClient.getInstance();
+
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserPreferences", Context.MODE_PRIVATE);
+        String userId = sharedPreferences.getString("userFirebaseId", "1234");
+
+        EventsApi eventsApi = retrofit.create(EventsApi.class);
+
+        databaseReference
+                .child("attendances")
+                .orderByChild(userId)
+                .equalTo(true)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        listEvents.clear();
+                        Log.d("Snapshot: ", snapshot.toString());
+
+                        AtomicInteger pendingCalls = new AtomicInteger((int) snapshot.getChildrenCount());
+
+                        for (DataSnapshot attendanceSnapshot : snapshot.getChildren()) {
+                            String eventId = attendanceSnapshot.getKey();
+                            Call<Event> call = eventsApi.getEventById(eventId);
+
+                            call.enqueue(new Callback<Event>() {
+                                @Override
+                                public void onResponse(Call<Event> call, Response<Event> response) {
+                                    if (!response.isSuccessful()) {
+                                        Log.e("Error", "Error al obtener los eventos");
+                                        checkAndUpdateAdapter(pendingCalls);
+                                        return;
+                                    }
+
+                                    Event event = response.body();
+                                    listEvents.add(event);
+                                    Toast.makeText(getContext(), event.getName() + ", " + listEvents.size(), Toast.LENGTH_SHORT).show();
+                                    checkAndUpdateAdapter(pendingCalls);
+                                }
+
+                                @Override
+                                public void onFailure(Call<Event> call, Throwable throwable) {
+                                    Log.e("Error BY child", "Error al obtener los eventos: " + throwable.getMessage());
+                                    checkAndUpdateAdapter(pendingCalls);
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("Error", error.getMessage());
+                        Toast.makeText(getContext(), "Error al cargar los eventos", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        return root;
+    }
+
+    private void checkAndUpdateAdapter(AtomicInteger pendingCalls) {
+        if (pendingCalls.decrementAndGet() == 0) {
+            requireActivity().runOnUiThread(() -> {
+                Toast.makeText(getContext(), "Size final: " + listEvents.size(), Toast.LENGTH_SHORT).show();
+                TargetedEventsListAdapter adapter = new TargetedEventsListAdapter(requireContext(), listEvents);
+                listViewTodosProximosEventos.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+            });
+        }
     }
 }

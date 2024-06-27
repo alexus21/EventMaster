@@ -7,7 +7,7 @@
     tools:context=".fragments.TargetedEventsFragment">
 
     <ListView
-        android:id="@+id/listaTodosProximosEventos"
+        android:id="@+id/listViewTodosProximosEventos"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintEnd_toEndOf="parent"

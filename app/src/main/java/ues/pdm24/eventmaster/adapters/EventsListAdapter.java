@@ -1,6 +1,7 @@
 package ues.pdm24.eventmaster.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.zip.Inflater;
 
 import ues.pdm24.eventmaster.R;
+import ues.pdm24.eventmaster.activities.EditEventActivity;
 import ues.pdm24.eventmaster.api.models.Event;
 import ues.pdm24.eventmaster.models.events.EventCount;
 
@@ -177,6 +179,21 @@ public class EventsListAdapter extends BaseAdapter {
 
         txtEventName.setText(event.getName());
         textViewPublishedBy.setText(event.getDetails());
+
+        imgEvent.setOnClickListener(v -> {
+            System.out.println("ID evento seleccionado: " + event.getId());
+            Intent editEventIntent = new Intent(this.context, EditEventActivity.class);
+            editEventIntent.putExtra("eventId", event.getId());
+            editEventIntent.putExtra("eventName", event.getName());
+            editEventIntent.putExtra("eventLocation", event.getLocation());
+            editEventIntent.putExtra("eventDescription", event.getDetails());
+            editEventIntent.putExtra("eventAssistants", event.getCapacity());
+            editEventIntent.putExtra("eventCategory", event.getCategory());
+//            editEventIntent.putExtra("eventImageUrl", event.getImageUrl());
+            editEventIntent.putExtra("eventDate", event.getDate());
+
+            context.startActivity(editEventIntent);
+        });
 
         return convertView;
     }

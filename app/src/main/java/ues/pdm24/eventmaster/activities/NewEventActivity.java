@@ -41,6 +41,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ues.pdm24.eventmaster.R;
 /*import ues.pdm24.eventmaster.models.events.Event;*/
+import ues.pdm24.eventmaster.api.instances.RetrofitClient;
 import ues.pdm24.eventmaster.api.interfaces.EventsApi;
 import ues.pdm24.eventmaster.api.models.Event;
 import ues.pdm24.eventmaster.validations.NetworkChecker;
@@ -65,10 +66,7 @@ public class NewEventActivity extends AppCompatActivity {
 
         Event event = new Event(0, title, location, category, date, description, assistants, userId, image);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://event-api-cfbb36feb6d3.herokuapp.com/api/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        Retrofit retrofit = RetrofitClient.getInstance();
 
         EventsApi eventsApi = retrofit.create(EventsApi.class);
 

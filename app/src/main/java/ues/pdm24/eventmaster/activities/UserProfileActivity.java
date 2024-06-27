@@ -32,18 +32,18 @@ public class UserProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
     private void signOut() {
-    mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
-        if (task.isSuccessful()) {
-            Toast.makeText(this, "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
-            mAuth.signOut();
-        } else {
-            Toast.makeText(this, "Error al cerrar sesión ", Toast.LENGTH_SHORT).show();
-        }
-    })
-    .addOnFailureListener(e -> {
-        Toast.makeText(this, "Error al cerrar sesión: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-    });
-}
+        mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
+                        mAuth.signOut();
+                    } else {
+                        Toast.makeText(this, "Error al cerrar sesión ", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error al cerrar sesión: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
 
 
     @Override
@@ -91,7 +91,7 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
         btnEndSession.setOnClickListener(v -> {
-            if(NetworkChecker.checkInternetConnection(this)) {
+            if (NetworkChecker.checkInternetConnection(this)) {
                 mostrarMensaje("No hay conexión a internet");
                 return;
             }
@@ -115,7 +115,7 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
         btnDeleteMyAccount.setOnClickListener(v -> {
-            if(NetworkChecker.checkInternetConnection(this)) {
+            if (NetworkChecker.checkInternetConnection(this)) {
                 mostrarMensaje("No hay conexión a internet");
                 return;
             }
@@ -130,7 +130,7 @@ public class UserProfileActivity extends AppCompatActivity {
             String password = txtPassword.getText().toString().trim();
             String retypePassword = txtRetypedPassword.getText().toString().trim();
 
-            if(NetworkChecker.checkInternetConnection(this)) {
+            if (NetworkChecker.checkInternetConnection(this)) {
                 mostrarMensaje("No hay conexión a internet");
                 return;
             }

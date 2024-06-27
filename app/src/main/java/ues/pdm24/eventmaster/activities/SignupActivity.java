@@ -68,7 +68,15 @@ public class SignupActivity extends AppCompatActivity {
                 Toast.makeText(SignupActivity.this, "Usuario ya autenticado", Toast.LENGTH_SHORT).show();
             } else {
                 // Usuario autenticado con un correo diferente, cerrar sesión
-                mAuth.signOut();
+                mAuth.getCurrentUser().delete()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(SignupActivity.this, "Usuario autenticado eliminado", Toast.LENGTH_SHORT).show();
+                                mAuth.signOut();
+                            } else {
+                                Toast.makeText(SignupActivity.this, "Error al eliminar usuario autenticado", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                 // Intentar autenticar al nuevo usuario
                 mAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(task -> {

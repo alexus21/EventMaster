@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/editEventActivity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fondo_evento"
+    tools:context=".activities.EditEventActivity">
+
+    <!-- Agregar destinos turisticos -->
+
+    <TextView
+        android:id="@+id/tvOverlayText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#80000000"
+        android:text="Seleccionar imagen"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/imgEvent"
+        app:layout_constraintEnd_toEndOf="@+id/imgEvent"
+        app:layout_constraintStart_toStartOf="@+id/imgEvent"
+        app:layout_constraintTop_toTopOf="@+id/imgEvent" />
+
+
+    <ImageView
+        android:id="@+id/imgEvent"
+        android:layout_width="312dp"
+        android:layout_height="147dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:foregroundGravity="fill"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.037" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/nombre_text_input_layout"
+        android:layout_width="359dp"
+        android:layout_height="60dp"
+        android:hint="Título del evento"
+        android:textColor="@color/blue_rackley"
+        android:textColorHint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.47"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgEvent"
+        app:layout_constraintVertical_bias="0.044">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextEventTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/comfortaa_regular"
+            android:inputType="text"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:passwordToggleEnabled="true" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/location_text_input_layout"
+        android:layout_width="360dp"
+        android:layout_height="60dp"
+        android:hint="Ubicación del evento"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.484"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nombre_text_input_layout"
+        app:layout_constraintVertical_bias="0.029">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextEventLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/comfortaa_regular"
+            android:inputType="text"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:passwordToggleEnabled="true" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Spinner
+        android:id="@+id/spinnerEventCategories"
+        style="@style/CustomSpinnerStyle"
+        android:layout_width="358dp"
+        android:layout_height="46dp"
+        android:hint="Categoría"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.428"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/location_text_input_layout"
+        app:layout_constraintVertical_bias="0.036" />
+
+    <DatePicker
+        android:id="@+id/datePicker"
+        android:layout_width="361dp"
+        android:layout_height="131dp"
+        android:calendarViewShown="false"
+        android:datePickerMode="spinner"
+        android:fontFamily="@font/comfortaa_regular"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerEventCategories"
+        app:layout_constraintVertical_bias="0.09" />
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/descripcion_text_input_layout"
+        android:layout_width="360dp"
+        android:layout_height="60dp"
+        android:hint="Descripción del evento"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.484"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/datePicker"
+        app:layout_constraintVertical_bias="0.08">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextEventDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/comfortaa_regular"
+            android:inputType="text"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:passwordToggleEnabled="true"
+            tools:layout_editor_absoluteX="19dp"
+            tools:layout_editor_absoluteY="555dp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/assistants_text_input_layout"
+        android:layout_width="360dp"
+        android:layout_height="60dp"
+        android:hint="Cantidad de asistentes"
+        android:textColor="@color/blue_rackley"
+        android:textColorHint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.484"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/descripcion_text_input_layout"
+        app:layout_constraintVertical_bias="0.164">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextEventAssistants"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/comfortaa_regular"
+            android:inputType="number"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:passwordToggleEnabled="true"
+            tools:layout_editor_absoluteX="19dp"
+            tools:layout_editor_absoluteY="555dp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="363dp"
+        android:layout_height="69dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/assistants_text_input_layout">
+
+        <Button
+            android:id="@+id/btnEditEvent"
+            android:layout_width="175dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/comfortaa_bold"
+            android:text="Actualizar"
+            android:backgroundTint="@color/blue_rackley"
+            android:layout_marginStart="5dp"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btnDeleteEvent"
+            android:layout_width="175dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/comfortaa_bold"
+            android:text="Eliminar"
+            android:backgroundTint="@color/red_salmon_like"
+            android:layout_marginStart="5dp"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

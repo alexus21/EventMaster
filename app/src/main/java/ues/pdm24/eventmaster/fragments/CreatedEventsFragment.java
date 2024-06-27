@@ -1,14 +1,30 @@
 package ues.pdm24.eventmaster.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 import ues.pdm24.eventmaster.R;
+import ues.pdm24.eventmaster.adapters.EventsListAdapter;
+import ues.pdm24.eventmaster.api.instances.RetrofitClient;
+import ues.pdm24.eventmaster.api.interfaces.EventsApi;
+import ues.pdm24.eventmaster.api.models.Event;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,6 +41,11 @@ public class CreatedEventsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+
+    private ListView ltsMisEventos;
+    private ArrayList<Event> eventos;
+    private EventsListAdapter adapter;
 
     public CreatedEventsFragment() {
         // Required empty public constructor
@@ -60,7 +81,51 @@ public class CreatedEventsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_created_events, container, false);
+        View view = inflater.inflate(R.layout.fragment_created_events, container, false);
+
+        ltsMisEventos = view.findViewById(R.id.ltsMisEventos);
+
+        eventos = new ArrayList<>();
+
+        Retrofit retrofit = RetrofitClient.getInstance();
+
+        EventsApi eventsApi = retrofit.create(EventsApi.class);
+
+        Call<List<Event>> call = eventsApi.getEvents();
+
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserPreferences", Context.MODE_PRIVATE);
+        String userId = sharedPreferences.getString("userFirebaseId", "1234");
+
+        call.enqueue(new Callback<List<Event>>() {
+            @Override
+            public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
+                if (!response.isSuccessful()) {
+                    Log.e("Error", "Error al obtener los eventos");
+                    return;
+                }
+
+                for (Event event : response.body()) {
+                    Log.d("Event", event.getName());
+                }
+
+                List<Event> events = response.body();
+
+                eventos.clear();
+                eventos.addAll(events.stream().filter(event -> event.getUserid().equals(userId)).collect(Collectors.toList()));
+
+                Log.d("Eventos", eventos.toString());
+
+                adapter = new EventsListAdapter(getContext(), eventos, false);
+                ltsMisEventos.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+
+            }
+            @Override
+            public void onFailure(Call<List<Event>> call, Throwable throwable) {
+                Log.e("Error", "Error al obtener los eventos: " + throwable.getMessage());
+            }
+        });
+
+        return view;
     }
 }

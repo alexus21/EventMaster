@@ -103,7 +103,7 @@ public class HomeActivity extends AppCompatActivity {
             case R.id.mnxTargetedEvents:
                 btnAgregarEventos.hide();
                 mainFragment = new TargetedEventsFragment();
-                nameApp = "Mis intereses";
+                nameApp = "Mis Asistencias";
                 break;
         }
 

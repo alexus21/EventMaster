@@ -7,6 +7,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 import ues.pdm24.eventmaster.api.models.Event;
 
 public interface EventsApi {
@@ -19,4 +20,7 @@ public interface EventsApi {
 
     @GET("events/{id}")
     Call<Event> getEventById(@Path("id") String id);
+
+    @GET("events")
+    Call<List<Event>> getEvents(@Query("q") String query);
 }

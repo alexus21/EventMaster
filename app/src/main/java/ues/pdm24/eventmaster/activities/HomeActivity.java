@@ -6,6 +6,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +48,9 @@ public class HomeActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigation;
     TextView lblnameapp, lblUsuarioLogeado;
     FloatingActionButton btnAgregarEventos;
+    ImageButton imageButtonSearch;
     CircleImageView btnUser;
+    EditText txt_busqueda;
     String nameApp = "";
 
     @Override
@@ -67,14 +72,54 @@ public class HomeActivity extends AppCompatActivity {
         btnAgregarEventos = findViewById(R.id.btnAgregarEventos);
         btnUser = findViewById(R.id.btnUser);
         mainFragment = new EventListFragment();
+        txt_busqueda = findViewById(R.id.txt_busqueda);
+        imageButtonSearch = findViewById(R.id.imageButtonSearch);
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainerView, mainFragment)
+                .replace(R.id.fragmentContainerView, mainFragment, "EventListFragment")
                 .commit();
         lblnameapp.setText("Eventos");
 
         SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
         lblUsuarioLogeado.setText(sharedPreferences.getString("username", "Invitado"));
+
+        imageButtonSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String textSearString = txt_busqueda.getText().toString().trim();
+
+                Fragment myFragment = getSupportFragmentManager().findFragmentById(mainFragment.getId());
+                Toast.makeText(HomeActivity.this, "Buscando: " + textSearString, Toast.LENGTH_SHORT).show();
+                Log.i("Fragment", myFragment.getTag().toString());
+
+                String myTag = myFragment.getTag().toString();
+                Toast.makeText(HomeActivity.this, "Fragment: " + myTag, Toast.LENGTH_SHORT).show();
+
+                switch (myTag) {
+                    case "EventListFragment":
+                        Toast.makeText(HomeActivity.this, "Buscando en EventListFragment", Toast.LENGTH_SHORT).show();
+                        mainFragment = new EventListFragment(textSearString, true);
+                        myTag = "EventListFragment";
+                        break;
+                    case "CreatedEventsFragment":
+                        mainFragment = new CreatedEventsFragment(textSearString, true);
+                        myTag = "CreatedEventsFragment";
+                        break;
+                    case "TargetedEventsFragment":
+                        mainFragment = new TargetedEventsFragment(textSearString, true);
+                        myTag = "TargetedEventsFragment";
+                        break;
+                }
+
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainerView, mainFragment, myTag)
+                        .commit();
+
+                /*getSupportFragmentManager().beginTransaction()
+                        .remove(mainFragment).commit();*/
+
+            }
+        });
 
         btnUser.setOnClickListener(v -> {
             startActivity(new Intent(this, UserProfileActivity.class));
@@ -89,21 +134,25 @@ public class HomeActivity extends AppCompatActivity {
 
     @SuppressLint("NonConstantResourceId")
     private boolean handleNavigationItemSelected(MenuItem item) {
+        String fragment_tag = "";
         switch (item.getItemId()) {
             case R.id.mnxAllEvents:
                 btnAgregarEventos.show();
                 mainFragment = new EventListFragment();
                 nameApp = "Eventos";
+                fragment_tag = "EventListFragment";
                 break;
             case R.id.mnxMyEvents:
                 btnAgregarEventos.hide();
                 mainFragment = new CreatedEventsFragment();
                 nameApp = "Mis eventos";
+                fragment_tag = "CreatedEventsFragment";
                 break;
             case R.id.mnxTargetedEvents:
                 btnAgregarEventos.hide();
                 mainFragment = new TargetedEventsFragment();
                 nameApp = "Mis Asistencias";
+                fragment_tag = "TargetedEventsFragment";
                 break;
         }
 
@@ -111,7 +160,7 @@ public class HomeActivity extends AppCompatActivity {
 
         if (mainFragment != null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainerView, mainFragment)
+                    .replace(R.id.fragmentContainerView, mainFragment, fragment_tag)
                     .commit();
             lblnameapp.setText(nameApp);
         }

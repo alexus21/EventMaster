@@ -46,6 +46,9 @@ public class EventListFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    private String textSearch = "";
+    private boolean isSearching = false;
+
 
     private ListView listaTodosEventos;
     private ArrayList<Event> eventos;
@@ -57,6 +60,11 @@ public class EventListFragment extends Fragment {
 
     public EventListFragment() {
         // Required empty public constructor
+    }
+
+    public EventListFragment(String textSearch, boolean isSearching) {
+        this.textSearch = textSearch;
+        this.isSearching = isSearching;
     }
 
     /**
@@ -98,7 +106,8 @@ public class EventListFragment extends Fragment {
 
         EventsApi eventsApi = retrofit.create(EventsApi.class);
 
-        Call<List<Event>> call = eventsApi.getEvents();
+
+        Call<List<Event>> call = eventsApi.getEvents(isSearching ? textSearch : "");
 
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserPreferences", Context.MODE_PRIVATE);
         String userId = sharedPreferences.getString("userFirebaseId", "1234");

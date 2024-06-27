@@ -47,8 +47,16 @@ public class CreatedEventsFragment extends Fragment {
     private ArrayList<Event> eventos;
     private EventsListAdapter adapter;
 
+    private String textSearch = "";
+    private boolean isSearching = false;
+
     public CreatedEventsFragment() {
         // Required empty public constructor
+    }
+
+    public CreatedEventsFragment(String textSearch, boolean isSearching) {
+        this.textSearch = textSearch;
+        this.isSearching = isSearching;
     }
 
     /**

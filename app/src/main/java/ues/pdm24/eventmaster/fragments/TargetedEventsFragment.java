@@ -39,8 +39,16 @@ public class TargetedEventsFragment extends Fragment {
     private ListView listViewTodosProximosEventos;
     private ArrayList<Event> listEvents;
 
+    private String textSearch = "";
+    private boolean isSearching = false;
+
     public TargetedEventsFragment() {
         // Required empty public constructor
+    }
+
+    public TargetedEventsFragment(String textSearch, boolean isSearching) {
+        this.textSearch = textSearch;
+        this.isSearching = isSearching;
     }
 
     public static TargetedEventsFragment newInstance(String param1, String param2) {

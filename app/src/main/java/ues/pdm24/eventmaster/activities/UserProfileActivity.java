@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -107,6 +108,8 @@ public class UserProfileActivity extends AppCompatActivity {
                 mostrarMensaje("No hay usuario autenticado actualmente");
             }
         });
+
+        btnDeleteMyAccount.setVisibility(View.GONE);
 
         btnDeleteMyAccount.setOnClickListener(v -> {
             if (NetworkChecker.checkInternetConnection(this)) {

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -85,6 +86,20 @@ public class EditEventActivity extends AppCompatActivity {
         datePicker.updateDate(getIntent().getIntExtra("eventYear", 2021),
                 getIntent().getIntExtra("eventMonth", 1),
                 getIntent().getIntExtra("eventDay", 1));
+
+        String userRemoteId = getIntent().getStringExtra("eventUserId");
+
+        if (!userId.equals(userRemoteId)) {
+            btnEditEvent.setVisibility(View.GONE);
+            btnDeleteEvent.setVisibility(View.GONE);
+            editTextEventTitle.setEnabled(false);
+            editTextEventLocation.setEnabled(false);
+            editTextEventDescription.setEnabled(false);
+            editTextEventAssistants.setEnabled(false);
+            spinnerEventCategories.setEnabled(false);
+            datePicker.setEnabled(false);
+            return;
+        }
 
         btnEditEvent.setOnClickListener(v -> {
             if (NetworkChecker.checkInternetConnection(this)) {

@@ -191,6 +191,7 @@ public class EventsListAdapter extends BaseAdapter {
             editEventIntent.putExtra("eventCategory", event.getCategory());
             editEventIntent.putExtra("eventImageUrl", event.getImageUrl());
             editEventIntent.putExtra("eventDate", event.getDate());
+            editEventIntent.putExtra("eventUserId", event.getUserid());
 
             context.startActivity(editEventIntent);
         });

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -13,12 +14,14 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -27,6 +30,7 @@ import retrofit2.Retrofit;
 import ues.pdm24.eventmaster.R;
 import ues.pdm24.eventmaster.api.instances.RetrofitClient;
 import ues.pdm24.eventmaster.api.interfaces.EventsApi;
+import ues.pdm24.eventmaster.api.models.Event;
 import ues.pdm24.eventmaster.firebasedatacollection.FirebaseDataCollection;
 import ues.pdm24.eventmaster.validations.NetworkChecker;
 import ues.pdm24.eventmaster.validations.NewPostValidation;
@@ -52,6 +56,12 @@ public class EditEventActivity extends AppCompatActivity {
             return insets;
         });
 
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Events");
+        SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
+        String userId = sharedPreferences.getString("userFirebaseId", "1234");
+        Retrofit retrofit = RetrofitClient.getInstance();
+        EventsApi eventsApi = retrofit.create(EventsApi.class);
+
         btnEditEvent = findViewById(R.id.btnEditEvent);
         btnDeleteEvent = findViewById(R.id.btnDeleteEvent);
         editTextEventTitle = findViewById(R.id.editTextEventTitle);
@@ -62,12 +72,16 @@ public class EditEventActivity extends AppCompatActivity {
         imgEvent = findViewById(R.id.imgEvent);
         datePicker = findViewById(R.id.datePicker);
 
+        // Categorías de eventos de ejemplo para el spinner
+        ArrayAdapter<String> adapter = getStringArrayAdapter();
+        spinnerEventCategories.setAdapter(adapter);
+
         editTextEventTitle.setText(getIntent().getStringExtra("eventName"));
         editTextEventLocation.setText(getIntent().getStringExtra("eventLocation"));
         editTextEventDescription.setText(getIntent().getStringExtra("eventDescription"));
-        editTextEventAssistants.setText(getIntent().getStringExtra("eventAssistants"));
+        editTextEventAssistants.setText(String.valueOf(getIntent().getIntExtra("eventAssistants", 0)));
         spinnerEventCategories.setSelection(getIntent().getIntExtra("eventCategory", 0));
-//        imgEvent.setImageURI(Uri.parse(getIntent().getStringExtra("eventImage")));
+        Glide.with(this).load(getIntent().getStringExtra("eventImageUrl")).into(imgEvent);
         datePicker.updateDate(getIntent().getIntExtra("eventYear", 2021),
                 getIntent().getIntExtra("eventMonth", 1),
                 getIntent().getIntExtra("eventDay", 1));
@@ -88,26 +102,50 @@ public class EditEventActivity extends AppCompatActivity {
                 return;
             }
 
-            if (selectedImageBitmap == null && selectedImageUri == null) {
+            /*if (selectedImageBitmap == null && selectedImageUri == null) {
                 Toast.makeText(this, "Debe seleccionar una imagen", Toast.LENGTH_SHORT).show();
                 return;
-            }
-
-            /*disableUploadButton();
-
-            if (selectedImageBitmap != null) {
-                uploadImageToFirebaseStorage(selectedImageBitmap, eventTitle, eventLocation, eventDescription, eventAssistants);
-            } else {
-                uploadImageToFirebaseStorage(selectedImageUri, eventTitle, eventLocation, eventDescription, eventAssistants);
             }*/
+
+            // Get the event ID
+            int eventId = getIntent().getIntExtra("eventId", 0);
+
+            // Create the event object
+            Event event = new Event();
+            event.setName(eventTitle);
+            event.setDetails(eventDescription);
+            event.setLocation(eventLocation);
+            event.setCapacity(Integer.parseInt(eventAssistants));
+            event.setCategory(spinnerEventCategories.getSelectedItem().toString());
+            event.setDate(getDatePicker(datePicker));
+            event.setUserid(userId);
+
+            // Update the event in the API
+            Call<Event> call = eventsApi.updateEvent(String.valueOf(eventId), event);
+            call.enqueue(new retrofit2.Callback<Event>() {
+                @Override
+                public void onResponse(Call<Event> call, retrofit2.Response<Event> response) {
+                    if (!response.isSuccessful()) {
+                        mostrarMensaje("Error al actualizar el evento");
+                        return;
+                    }
+
+                    // Update the event in the database
+                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Events");
+                    reference.child(String.valueOf(eventId)).setValue(event);
+                    mostrarMensaje("Evento actualizado correctamente");
+                    startActivity(new Intent(EditEventActivity.this, HomeActivity.class));
+                    finish();
+                }
+
+                @Override
+                public void onFailure(Call<Event> call, Throwable t) {
+                    mostrarMensaje("Error al actualizar el evento");
+                }
+            });
         });
 
         btnDeleteEvent.setOnClickListener(v -> {
-            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Events");
-            SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
-            String userId = sharedPreferences.getString("userFirebaseId", "1234");
-            Retrofit retrofit = RetrofitClient.getInstance();
-            EventsApi eventsApi = retrofit.create(EventsApi.class);
 
             // Eliminar el evento
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -146,7 +184,33 @@ public class EditEventActivity extends AppCompatActivity {
         });
     }
 
+    private String getDatePicker(DatePicker myDatePicker) {
+        int day = myDatePicker.getDayOfMonth();
+        int month = myDatePicker.getMonth() + 1;
+        int year = myDatePicker.getYear();
 
+        // Format the date as "year-month-day"
+        return year + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day);
+    }
+
+    @NonNull
+    private ArrayAdapter<String> getStringArrayAdapter() {
+        String[] eventCategories = new String[]{
+                "Concierto",
+                "Deportivo",
+                "Cultural",
+                "Social",
+                "Religioso",
+                "Académico",
+                "Empresarial",
+                "Familiar",
+        };
+
+        // Crear un ArrayAdapter para el spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, eventCategories);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        return adapter;
+    }
 
     /*private void showConfirmationDialog(String userId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

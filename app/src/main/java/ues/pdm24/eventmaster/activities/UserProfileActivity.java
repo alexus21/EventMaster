@@ -3,6 +3,7 @@ package ues.pdm24.eventmaster.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -32,17 +33,20 @@ public class UserProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
     private void signOut() {
-        mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
-                        mAuth.signOut();
-                    } else {
-                        Toast.makeText(this, "Error al cerrar sesión ", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Error al cerrar sesión: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+        mAuth.signOut();
+        Toast.makeText(this, "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
+
+        // Limpiar las preferencias compartidas
+        SharedPreferences preferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+
+        // Redirigir al usuario a la pantalla de inicio de sesión
+        Intent intent = new Intent(UserProfileActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish(); // Cierra la actividad actual
     }
 
 
@@ -95,23 +99,13 @@ public class UserProfileActivity extends AppCompatActivity {
                 mostrarMensaje("No hay conexión a internet");
                 return;
             }
-
             FirebaseUser currentUser = mAuth.getCurrentUser();
 
             if (currentUser != null) {
-                Toast.makeText(this, "usuario autenticado: " + currentUser.getEmail(), Toast.LENGTH_SHORT).show();
                 signOut();
+            } else {
+                mostrarMensaje("No hay usuario autenticado actualmente");
             }
-
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.clear();
-            editor.apply();
-
-            Intent intent = new Intent(UserProfileActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish(); // Cierra la actividad actual
-
         });
 
         btnDeleteMyAccount.setOnClickListener(v -> {

@@ -8,6 +8,7 @@ import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -48,56 +49,27 @@ public class SignupActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
 
     private void authentification(String email, String password) {
-        FirebaseUser user = mAuth.getCurrentUser();
-
-        if (user == null) {
-            // No hay ningún usuario autenticado, crea uno nuevo
-            mAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            // Usuario creado y autenticado exitosamente
                             Toast.makeText(SignupActivity.this, "Usuario registrado y autenticado exitosamente", Toast.LENGTH_SHORT).show();
+                            // Aquí puedes agregar código adicional, como actualizar la UI o navegar a otra actividad
                         } else {
-                            Toast.makeText(SignupActivity.this, "Error al registrar usuario", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignupActivity.this, "Error inesperado al obtener el usuario", Toast.LENGTH_SHORT).show();
                         }
-                    })
-                    .addOnFailureListener(e -> Toast.makeText(SignupActivity.this, "Error al registrar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-        } else {
-            // Hay un usuario autenticado, verificar si es el mismo correo
-            if (user.getEmail().equals(email)) {
-                // Usuario ya autenticado con el mismo correo
-                Toast.makeText(SignupActivity.this, "Usuario ya autenticado", Toast.LENGTH_SHORT).show();
-            } else {
-                // Usuario autenticado con un correo diferente, cerrar sesión
-                mAuth.getCurrentUser().delete()
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(SignupActivity.this, "Usuario autenticado eliminado", Toast.LENGTH_SHORT).show();
-                                mAuth.signOut();
-                            } else {
-                                Toast.makeText(SignupActivity.this, "Error al eliminar usuario autenticado", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                // Intentar autenticar al nuevo usuario
-                mAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(SignupActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-                            } else {
-                                // Si el usuario no está registrado, registrarlo
-                                mAuth.createUserWithEmailAndPassword(email, password)
-                                        .addOnCompleteListener(createTask -> {
-                                            if (createTask.isSuccessful()) {
-                                                Toast.makeText(SignupActivity.this, "Usuario registrado y autenticado exitosamente", Toast.LENGTH_SHORT).show();
-                                            } else {
-                                                Toast.makeText(SignupActivity.this, "Error al registrar usuario", Toast.LENGTH_SHORT).show();
-                                            }
-                                        })
-                                        .addOnFailureListener(e -> Toast.makeText(SignupActivity.this, "Error al registrar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                            }
-                        })
-                        .addOnFailureListener(e -> Toast.makeText(SignupActivity.this, "Error al iniciar sesión: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-            }
-        }
+                    } else {
+                        // Si falla, verifica si el usuario ya existe
+                        if (task.getException() != null && task.getException().getMessage() != null &&
+                                task.getException().getMessage().contains("The email address is already in use by another account.")) {
+                            Toast.makeText(SignupActivity.this, "Este correo electrónico ya está registrado", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(SignupActivity.this, "Error al registrar usuario: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     @Override
@@ -161,6 +133,7 @@ public class SignupActivity extends AppCompatActivity {
 
         String id = reference.push().getKey();
 
+        String passwordFirebase = password;
         password = EncryptPassword.encryptPassword(password);
 
         User user = new User(id, name, email, password);
@@ -175,7 +148,7 @@ public class SignupActivity extends AppCompatActivity {
                 });
         String username = email.split("@")[0];
 
-        authentification(email, password);
+        authentification(email, passwordFirebase);
 
         SharedPreferences sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();

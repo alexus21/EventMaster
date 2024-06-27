@@ -81,7 +81,35 @@ public class EditEventActivity extends AppCompatActivity {
         editTextEventLocation.setText(getIntent().getStringExtra("eventLocation"));
         editTextEventDescription.setText(getIntent().getStringExtra("eventDescription"));
         editTextEventAssistants.setText(String.valueOf(getIntent().getIntExtra("eventAssistants", 0)));
-        spinnerEventCategories.setSelection(getIntent().getIntExtra("eventCategory", 0));
+        int categoriaId = 0;
+        switch (getIntent().getStringExtra("eventCategory")) {
+            case "Concierto":
+                categoriaId = 0;
+                break;
+            case "Deportivo":
+                categoriaId = 1;
+                break;
+            case "Cultural":
+                categoriaId = 2;
+                break;
+            case "Social":
+                categoriaId = 3;
+                break;
+            case "Religioso":
+                categoriaId = 4;
+                break;
+            case "Académico":
+                categoriaId = 5;
+                break;
+            case "Empresarial":
+                categoriaId = 6;
+                break;
+            case "Familiar":
+                categoriaId = 7;
+                break;
+        }
+
+        spinnerEventCategories.setSelection(categoriaId);
         Glide.with(this).load(getIntent().getStringExtra("eventImageUrl")).into(imgEvent);
         datePicker.updateDate(getIntent().getIntExtra("eventYear", 2021),
                 getIntent().getIntExtra("eventMonth", 1),
@@ -146,8 +174,8 @@ public class EditEventActivity extends AppCompatActivity {
                     }
 
                     // Update the event in the database
-                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Events");
-                    reference.child(String.valueOf(eventId)).setValue(event);
+                    /*DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Events");
+                    reference.child(String.valueOf(eventId)).setValue(event);*/
                     mostrarMensaje("Evento actualizado correctamente");
                     startActivity(new Intent(EditEventActivity.this, HomeActivity.class));
                     finish();
@@ -181,7 +209,17 @@ public class EditEventActivity extends AppCompatActivity {
                         }
 
                         // Delete the event from the database
-                        reference.child(String.valueOf(eventId)).removeValue();
+                        DatabaseReference eventsReference = FirebaseDatabase.getInstance().getReference();
+
+                        eventsReference.child("Events")
+                                        .child(String.valueOf(eventId))
+                                        .removeValue();
+
+                        DatabaseReference attendancesReference = FirebaseDatabase.getInstance().getReference();
+                        attendancesReference.child("attendances")
+                                           .child(String.valueOf(eventId))
+                                           .removeValue();
+
                         mostrarMensaje("Evento eliminado correctamente");
                         startActivity(new Intent(EditEventActivity.this, HomeActivity.class));
                         finish();

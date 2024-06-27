@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.zip.Inflater;
 
 import ues.pdm24.eventmaster.R;
-import ues.pdm24.eventmaster.models.events.Event;
+import ues.pdm24.eventmaster.api.models.Event;
 
 public class EventsListAdapter extends BaseAdapter {
 
@@ -53,10 +53,10 @@ public class EventsListAdapter extends BaseAdapter {
 
         Event event = listEvents.get(position);
 
-        Glide.with(context).load(event.getImage()).into(imgEvent);
+        Glide.with(context).load(event.getImageUrl()).into(imgEvent);
 
-        txtEventName.setText(event.getTitle());
-        textViewPublishedBy.setText(event.getDescription());
+        txtEventName.setText(event.getName());
+        textViewPublishedBy.setText(event.getDetails());
 
         return convertView;
     }

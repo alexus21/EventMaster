@@ -1,5 +1,7 @@
 package ues.pdm24.eventmaster.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -19,10 +21,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 import ues.pdm24.eventmaster.R;
 import ues.pdm24.eventmaster.adapters.EventsListAdapter;
-import ues.pdm24.eventmaster.models.events.Event;
+import ues.pdm24.eventmaster.api.instances.RetrofitClient;
+import ues.pdm24.eventmaster.api.interfaces.EventsApi;
+import ues.pdm24.eventmaster.api.models.Event;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -84,7 +94,39 @@ public class EventListFragment extends Fragment {
         listaTodosEventos = view.findViewById(R.id.listaTodosEventos);
         eventos = new ArrayList<>();
 
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Events");
+        Retrofit retrofit = RetrofitClient.getInstance();
+
+        EventsApi eventsApi = retrofit.create(EventsApi.class);
+
+        Call<List<Event>> call = eventsApi.getEvents();
+
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserPreferences", Context.MODE_PRIVATE);
+        String userId = sharedPreferences.getString("userFirebaseId", "1234");
+
+        call.enqueue(new Callback<List<Event>>() {
+            @Override
+            public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
+                if (!response.isSuccessful()) {
+                    Log.e("Error", "Error al obtener los eventos");
+                    return;
+                }
+
+                List<Event> events = response.body();
+                eventos.clear();
+                eventos.addAll(events.stream().filter(event -> !event.getUserid().equals(userId)).collect(Collectors.toList()));
+
+                adapter = new EventsListAdapter(requireContext(), eventos);
+                listaTodosEventos.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Call<List<Event>> call, Throwable t) {
+                Log.e("Error", "Error al obtener los eventos");
+            }
+        });
+
+        /*DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Events");
 
         ref.addValueEventListener(new ValueEventListener() {
             @Override
@@ -107,7 +149,7 @@ public class EventListFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Log.e("ERROR", databaseError.getMessage());
             }
-        });
+        });*/
 
         return view;
     }
